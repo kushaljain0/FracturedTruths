@@ -93,7 +93,7 @@ export default function App() {
 				<div className="mt-6 grid gap-6 md:grid-cols-2">
 					<div className="space-y-3">
 						<h2 className="font-medium">Your Narrative</h2>
-						<div className="p-4 rounded bg-slate-900 border border-slate-800 min-h-[6rem] whitespace-pre-wrap">{narrative || 'No narrative yet.'}</div>
+						<div data-testid="narrative-box" className="p-4 rounded bg-slate-900 border border-slate-800 min-h-[6rem] whitespace-pre-wrap">{narrative || 'No narrative yet.'}</div>
 					</div>
 					<div className="space-y-3">
 						<h2 className="font-medium">Actions</h2>

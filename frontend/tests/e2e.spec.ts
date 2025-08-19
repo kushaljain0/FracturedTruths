@@ -28,9 +28,9 @@ test('3 players see different narratives', async ({ page, browser }) => {
 	await pageB.click('button:has-text("Investigate")');
 
 	// Expect different narratives to appear across players
-	await expect(page.locator('.min-h-\[6rem\]')).toContainText(/King|rebellion|corrupt/i, { timeout: 10000 });
-	await expect(pageB.locator('.min-h-\[6rem\]')).toContainText(/King|rebellion|corrupt/i, { timeout: 10000 });
-	await expect(pageC.locator('.min-h-\[6rem\]')).toContainText(/King|rebellion|corrupt/i, { timeout: 10000 });
+	await expect(page.getByTestId('narrative-box')).toContainText(/King|rebellion|corrupt/i, { timeout: 10000 });
+	await expect(pageB.getByTestId('narrative-box')).toContainText(/King|rebellion|corrupt/i, { timeout: 10000 });
+	await expect(pageC.getByTestId('narrative-box')).toContainText(/King|rebellion|corrupt/i, { timeout: 10000 });
 });
 
 
