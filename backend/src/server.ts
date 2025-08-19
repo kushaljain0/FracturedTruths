@@ -4,13 +4,26 @@ import { createApp } from './app';
 import { InMemoryGameRepository } from './repo/memory';
 import { StubLlmAdapter } from './llm/adapter';
 import { MockLlmNarrator } from './llm/narrator';
+import { GeminiLlmAdapter, GeminiNarrator } from './llm/gemini';
+import { loadConfig } from './config';
 
 // Simple WS broadcast wiring
 const wssClients = new Set<import('ws').WebSocket>();
+const cfg = loadConfig();
+const repo = new InMemoryGameRepository();
+const llm = cfg.llmProvider === 'gemini' && cfg.geminiApiKey
+	? new GeminiLlmAdapter({ apiKey: cfg.geminiApiKey, model: cfg.geminiModel })
+	: new StubLlmAdapter();
+const narrator = cfg.narrativesEnabled
+	? (cfg.llmProvider === 'gemini' && cfg.geminiApiKey
+			? new GeminiNarrator({ apiKey: cfg.geminiApiKey, model: cfg.geminiModel })
+			: new MockLlmNarrator())
+	: undefined;
+
 const app = createApp({
-	repo: new InMemoryGameRepository(),
-	llm: new StubLlmAdapter(),
-	narrator: new MockLlmNarrator(),
+	repo,
+	llm,
+	narrator,
 	broadcast: (event: unknown) => {
 		const data = JSON.stringify(event);
 		for (const ws of wssClients) {
