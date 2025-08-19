@@ -25,6 +25,21 @@ export function createApp(deps: { repo: GameRepository; llm: LlmAdapter; narrato
 		const overlay = await llm.generatePlayerOverlay({ playerId: player.id, displayName, entities, factions });
 		await repo.setOverlay(player.id, overlay);
 
+		// Optionally compose an initial narrative so UI shows text immediately
+		if (narrator) {
+			const players = await repo.listPlayers();
+			const evt: CanonicalEvent = { type: 'session_join', description: `${displayName} joined the session` };
+			const narratives = await narrator.composeNarratives(
+				evt,
+				players.map((p) => ({ id: p.id, displayName: p.displayName, alignment: p.alignment })),
+			);
+			for (const [pid, text] of Object.entries(narratives)) {
+				const existing = await repo.getOverlay(pid);
+				await repo.setOverlay(pid, { ...(existing?.view ?? {}), narrative: text });
+			}
+			broadcast?.({ type: 'narratives', byPlayer: narratives, event: evt });
+		}
+
 		return res.status(201).json({ playerId: player.id });
 	});
 

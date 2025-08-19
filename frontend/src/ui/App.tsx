@@ -47,6 +47,7 @@ export default function App() {
 		const pv = await fetch(`http://localhost:3000/view/${data.playerId}`);
 		const pvData = await pv.json();
 		if (pvData.view?.narrative) setNarrative(pvData.view.narrative);
+		else if (pvData.view?.brief) setNarrative(pvData.view.brief);
 	}
 
 	async function act(type: 'support' | 'rebel' | 'investigate') {
