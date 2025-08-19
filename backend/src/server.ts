@@ -3,8 +3,9 @@ import { WebSocketServer } from 'ws';
 import { createApp } from './app';
 import { InMemoryGameRepository } from './repo/memory';
 import { StubLlmAdapter } from './llm/adapter';
+import { MockLlmNarrator } from './llm/narrator';
 
-const app = createApp({ repo: new InMemoryGameRepository(), llm: new StubLlmAdapter() });
+const app = createApp({ repo: new InMemoryGameRepository(), llm: new StubLlmAdapter(), narrator: new MockLlmNarrator() });
 const server = http.createServer(app);
 
 // WebSocket server for realtime sync (kept for future broadcast hooks)

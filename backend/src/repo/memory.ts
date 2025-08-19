@@ -24,8 +24,12 @@ export class InMemoryGameRepository implements GameRepository {
 		this.events.push(evt);
 	}
 
-	async createPlayer(displayName: string): Promise<Player> {
-		const player: Player = { id: randomUUID(), displayName };
+	async listPlayers(): Promise<Player[]> {
+		return Array.from(this.players.values());
+	}
+
+	async createPlayer(displayName: string, alignment?: Player['alignment']): Promise<Player> {
+		const player: Player = { id: randomUUID(), displayName, alignment };
 		this.players.set(player.id, player);
 		return player;
 	}

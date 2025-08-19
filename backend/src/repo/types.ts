@@ -13,6 +13,7 @@ export interface Faction {
 export interface Player {
 	id: string;
 	displayName: string;
+	alignment?: 'merciful' | 'tyrannical' | 'corrupt_chancellor';
 }
 
 export interface OverlayView {
@@ -35,9 +36,10 @@ export interface GameRepository {
 	listFactions(): Promise<Faction[]>;
 	upsertEntity(entity: Entity): Promise<void>;
 	appendEvent(evt: GameEvent): Promise<void>;
+	listPlayers(): Promise<Player[]>;
 
 	// players & overlays
-	createPlayer(displayName: string): Promise<Player>;
+	createPlayer(displayName: string, alignment?: Player['alignment']): Promise<Player>;
 	getPlayer(playerId: string): Promise<Player | undefined>;
 	getOverlay(playerId: string): Promise<OverlayView | undefined>;
 	setOverlay(playerId: string, view: Record<string, unknown>): Promise<void>;

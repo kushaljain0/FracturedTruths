@@ -2,6 +2,7 @@ import request from 'supertest';
 import { createApp } from '../src/app';
 import { InMemoryGameRepository } from '../src/repo/memory';
 import { StubLlmAdapter } from '../src/llm/adapter';
+import { MockLlmNarrator } from '../src/llm/narrator';
 
 function makeApp() {
 	const repo = new InMemoryGameRepository();
@@ -10,7 +11,7 @@ function makeApp() {
 	repo['factions'].set('f1', { id: 'f1', name: 'Wardens', data: {} });
 	// @ts-ignore
 	repo['entities'].set('e1', { id: 'e1', kind: 'npc', data: { name: 'Guard' } });
-	return createApp({ repo, llm: new StubLlmAdapter() });
+	return createApp({ repo, llm: new StubLlmAdapter(), narrator: new MockLlmNarrator() });
 }
 
 describe('API', () => {
@@ -23,7 +24,7 @@ describe('API', () => {
 
 	it('GET /view/:playerId returns player-specific view', async () => {
 		const app = makeApp();
-		const join = await request(app).post('/join').send({ displayName: 'Bob' });
+		const join = await request(app).post('/join').send({ displayName: 'Bob', alignment: 'merciful' });
 		const pid = join.body.playerId as string;
 		const view = await request(app).get(`/view/${pid}`).send();
 		expect(view.status).toBe(200);
@@ -33,12 +34,13 @@ describe('API', () => {
 
 	it('POST /action appends event and updates overlay', async () => {
 		const app = makeApp();
-		const join = await request(app).post('/join').send({ displayName: 'Cara' });
+		const join = await request(app).post('/join').send({ displayName: 'Cara', alignment: 'tyrannical' });
 		const pid = join.body.playerId as string;
-		const act = await request(app).post('/action').send({ playerId: pid, type: 'observe', payload: { target: 'gate' } });
+		const act = await request(app).post('/action').send({ playerId: pid, type: 'policy_change', payload: { description: 'King raises tax' } });
 		expect(act.status).toBe(200);
 		const view = await request(app).get(`/view/${pid}`);
 		expect(view.status).toBe(200);
+		expect(view.body.view?.narrative).toContain('King raises tax');
 	});
 });
 
