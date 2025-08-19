@@ -1,4 +1,4 @@
-## Fractured Truths — High‑Level Specification
+## Fractured Truths — High‑Level Specification (MVP v0.1 — in progress)
 
 ### Problem statement
 Fractured Truths is a short-session, multiplayer asymmetric knowledge game. Each player experiences a different “truth” about a shared world. A large language model (LLM) acts as a narrative director, selectively revealing, distorting, or omitting information to drive tension, bluffing, and deduction. The core challenge is to navigate uncertainty, collaborate or deceive, and reconcile conflicting narratives to achieve goals.
