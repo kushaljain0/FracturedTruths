@@ -1,3 +1,4 @@
+import 'dotenv/config';
 export type LlmProvider = 'mock' | 'gemini';
 
 export interface AppConfig {
