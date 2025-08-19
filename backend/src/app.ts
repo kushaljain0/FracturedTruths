@@ -5,8 +5,8 @@ import type { LlmAdapter } from './llm/adapter';
 import type { LlmNarrator, CanonicalEvent } from './llm/narrator';
 import { randomUUID } from 'crypto';
 
-export function createApp(deps: { repo: GameRepository; llm: LlmAdapter; narrator?: LlmNarrator }) {
-	const { repo, llm, narrator } = deps;
+export function createApp(deps: { repo: GameRepository; llm: LlmAdapter; narrator?: LlmNarrator; broadcast?: (event: unknown) => void }) {
+	const { repo, llm, narrator, broadcast } = deps;
 	const app = express();
 	app.use(cors());
 	app.use(express.json());
@@ -45,13 +45,14 @@ export function createApp(deps: { repo: GameRepository; llm: LlmAdapter; narrato
 		if (!player) return res.status(404).json({ error: 'player not found' });
 
 		// For MVP: record an event and upsert a generic entity change
-		await repo.appendEvent({
+		const event = {
 			id: randomUUID(),
 			playerId,
 			type,
 			payload: payload ?? {},
 			createdAt: new Date(),
-		});
+		};
+		await repo.appendEvent(event);
 
 		// naive canonical update: ensure a heartbeat entity exists
 		await repo.upsertEntity({ id: 'world:heartbeat', kind: 'world', data: { lastAction: type } });
@@ -74,6 +75,12 @@ export function createApp(deps: { repo: GameRepository; llm: LlmAdapter; narrato
 				const existing = await repo.getOverlay(pid);
 				await repo.setOverlay(pid, { ...(existing?.view ?? {}), narrative: text });
 			}
+
+			broadcast?.({
+				type: 'narratives',
+				byPlayer: narratives,
+				event,
+			});
 		}
 
 		return res.status(200).json({ ok: true });
